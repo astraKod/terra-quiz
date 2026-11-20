@@ -35,11 +35,11 @@
     showCapital: true,
     showFlag: true,
     showBefore: false,
-    showHoverName: true,
+    showHoverName: false,
     showWhere: true,
-    showMapLabels: true,
-    autoZoom: true,
-    smoothZoomOut: true,
+    showMapLabels: false,
+    autoZoom: false,
+    smoothZoomOut: false,
     revealTime: 2000,
     ruTypes: regionDefaults,
   };
@@ -757,7 +757,9 @@
     );
 
     if (scale < AUTO_ZOOM_MIN) {
-      resetZoom('full');
+      const full = { x: state.base.x, y: state.base.y, w: state.base.w, h: state.base.h };
+      if (state.settings.smoothZoomOut) animateView(full, 'full', 460);
+      else resetZoom('full');
       return;
     }
 
@@ -1063,7 +1065,6 @@
     state.gen++;
     clearTimers();
     resetTarget();
-    resetZoom('full');
     hideHoverName();
 
     const pool = shuffle(poolFor(cont).filter(function (c) {
@@ -1090,8 +1091,14 @@
     els.crumbCount.textContent = cont.count + ' ' + unitWord(cont, cont.count);
 
     markTarget(country);
-    if (state.settings.autoZoom) focusCountry(country);
-    else resetZoom('full');
+    const full = { x: state.base.x, y: state.base.y, w: state.base.w, h: state.base.h };
+    if (state.settings.autoZoom) {
+      focusCountry(country);
+    } else if (state.settings.smoothZoomOut) {
+      animateView(full, 'full', 460);
+    } else {
+      resetZoom('full');
+    }
     els.live.textContent = 'Подсвечен новый объект ' + cont.where + '.';
   }
 
