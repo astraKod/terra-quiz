@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://astraKod.github.io/terra-quiz/sitemap.xml
+Sitemap: https://astrakod.github.io/terra-quiz/sitemap.xml
