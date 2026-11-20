@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#05070d" />
+  <meta name="description" content="Терра — бесплатная атлас-викторина: найдите страну на карте, узнайте столицу, флаг и координаты. Карты материков, России и вращающийся глобус." />
+  <meta name="keywords" content="атлас-викторина, география, викторина, страны, столицы, флаги, карта мира, карта России, регионы России, глобус, тест по географии" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <title>Терра — атлас-викторина: страны, столицы и флаги</title>
+
+  <link rel="canonical" href="https://astraKod.github.io/terra-quiz/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Терра — атлас-викторина" />
+  <meta property="og:title" content="Терра — атлас-викторина: страны, столицы и флаги" />
+  <meta property="og:description" content="Найдите страну на карте, проверьте знание столиц, флагов и координат. Карты материков, регионы России и вращающийся глобус." />
+  <meta property="og:url" content="https://astraKod.github.io/terra-quiz/" />
+  <meta property="og:locale" content="ru_RU" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Терра — атлас-викторина: страны, столицы и флаги" />
+  <meta name="twitter:description" content="Бесплатная викторина по географии: карты материков, Россия, глобус, страны и столицы." />
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Терра — атлас-викторина",
+      "url": "https://astraKod.github.io/terra-quiz/",
+      "description": "Атлас-викторина по географии: страны, столицы, флаги, координаты, карты материков и регионы России.",
+      "inLanguage": "ru"
+    }
+  </script>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%230b2c4f'/><path d='M25 38c8-12 27-18 42-9 4 3 8 6 9 11-7-2-12 2-17 5-6 4-13 3-19 0-6-3-11-2-15-7z' fill='%2372cfa4'/></svg>" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas class="stars" id="stars" aria-hidden="true"></canvas>
+  <div class="aurora" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Терра — на главную">
+      <svg class="brand__mark" viewBox="0 0 34 34" aria-hidden="true">
+        <defs>
+          <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#7bd8c4" />
+            <stop offset="0.55" stop-color="#6fa8ff" />
+            <stop offset="1" stop-color="#c49bff" />
+          </linearGradient>
+        </defs>
+        <circle cx="17" cy="17" r="13" fill="none" stroke="url(#brandGrad)" stroke-width="1.6" />
+        <ellipse cx="17" cy="17" rx="6" ry="13" fill="none" stroke="url(#brandGrad)" stroke-width="1.1" opacity="0.8" />
+        <path d="M4.5 17h25" fill="none" stroke="url(#brandGrad)" stroke-width="1.1" opacity="0.8" />
+        <circle cx="17" cy="17" r="2.1" fill="#eaf3ff" />
+      </svg>
+      <span class="brand__text">
+        <strong>Терра</strong>
+        <small>атлас-викторина</small>
+      </span>
+    </a>
+
+    <div class="topbar__right">
+      <div class="topbar__stats" aria-label="Содержимое атласа">
+        <span class="stat"><b id="mapsCount">7</b> <span id="mapsWord">карт</span></span>
+        <span class="stat__dot" aria-hidden="true"></span>
+        <span class="stat"><b id="countriesCount">212</b> <span id="countriesWord">стран и регионов</span></span>
+        <span class="live"><i aria-hidden="true"></i> Земля вращается</span>
+      </div>
+
+      <button class="settings-toggle" id="settingsToggle" type="button"
+              aria-label="Настройки викторины" aria-expanded="false" aria-controls="settingsPanel"
+              title="Настройки викторины">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 8.6a3.4 3.4 0 100 6.8 3.4 3.4 0 000-6.8z"/>
+          <path d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06-2.1 2.1-.06-.06a1.7 1.7 0 00-1.88-.34 1.7 1.7 0 00-1.03 1.56V21h-3v-.7A1.7 1.7 0 0010.7 18.6a1.7 1.7 0 00-1.88.34l-.06.06-2.1-2.1.06-.06A1.7 1.7 0 007.06 15a1.7 1.7 0 00-1.56-1.03H5.3v-3h.7A1.7 1.7 0 007.06 9.9a1.7 1.7 0 00-.34-1.88l-.06-.06 2.1-2.1.06.06A1.7 1.7 0 0010.7 6.26 1.7 1.7 0 0011.73 4.7V4h3v.7a1.7 1.7 0 001.03 1.56 1.7 1.7 0 001.88-.34l.06-.06 2.1 2.1-.06.06A1.7 1.7 0 0019.4 9.9a1.7 1.7 0 001.56 1.03h.7v3h-.7A1.7 1.7 0 0019.4 15z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="settings" id="settingsPanel" role="dialog" aria-label="Настройки викторины" hidden>
+      <div class="settings__head">
+        <div>
+          <strong>Настройки</strong>
+          <span>Настройте викторину под себя</span>
+        </div>
+        <button class="settings__close" id="settingsClose" type="button" aria-label="Закрыть настройки" title="Закрыть">×</button>
+      </div>
+
+      <div class="settings__body">
+        <p class="settings__group">До ответа</p>
+
+        <label class="switch">
+          <input type="checkbox" data-setting="showMapLabels" checked />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Все названия на карте</b><small>Страны и столицы до ответа</small></span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" data-setting="showBefore" />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Показывать до ответа</b><small>Название, столица и флаг в ответе</small></span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" data-setting="showHoverName" checked />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Название при наведении</b><small>Полное имя в верхнем баре</small></span>
+        </label>
+
+        <p class="settings__group">Карта</p>
+
+        <label class="switch">
+          <input type="checkbox" data-setting="autoZoom" checked />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Авто-увеличение</b><small>Приближать мелкие страны</small></span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" data-setting="smoothZoomOut" checked />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Плавное отдаление</b><small>После нажатия на страну</small></span>
+        </label>
+
+        <p class="settings__group">Регионы России</p>
+
+        <label class="switch">
+          <input type="checkbox" data-region-type="Республика" checked />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Республики</b><small>21 регион</small></span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" data-region-type="Край" checked />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Края</b><small>9 регионов</small></span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" data-region-type="Область" checked />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Области</b><small>46 регионов</small></span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" data-region-type="Автономный округ" />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Автономные округа</b><small>4 региона</small></span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" data-region-type="Автономная область" />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Автономная область</b><small>1 регион</small></span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" data-region-type="Город" />
+          <span class="switch__track" aria-hidden="true"><i></i></span>
+          <span class="switch__text"><b>Города федерального значения</b><small>2 города</small></span>
+        </label>
+
+        <div class="settings__time">
+          <span>Время показа ответа</span>
+          <div class="segments" id="revealTime" role="group" aria-label="Время показа ответа">
+            <button type="button" data-ms="1500">1.5 с</button>
+            <button type="button" data-ms="2000">2 с</button>
+            <button type="button" data-ms="3000">3 с</button>
+            <button type="button" data-ms="5000">5 с</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings__foot">
+        <button id="settingsReset" type="button">Сбросить настройки</button>
+        <span>Сохраняются автоматически</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="view view--globe" id="globeView" aria-label="Выбор материка">
+      <div class="intro">
+        <p class="eyebrow"><span aria-hidden="true">●</span> Интерактивный атлас</p>
+        <h1>Проверьте себя на карте</h1>
+        <p class="intro__text">
+          Выберите материк — на карте случайно подсветится страна.
+          Найдите её и узнайте название, столицу, флаг и примерное расположение.
+        </p>
+      </div>
+
+      <div class="globe-stage" id="globeStage">
+        <div class="orbit orbit--a" aria-hidden="true"></div>
+        <div class="orbit orbit--b" aria-hidden="true"></div>
+
+        <div class="globe-shell" id="globeShell">
+          <div class="globe-halo" aria-hidden="true"></div>
+          <canvas id="globe" role="img" aria-label="Вращающийся глобус Земли. Выберите материк в списке ниже."></canvas>
+          <span class="globe-shine" aria-hidden="true"></span>
+        </div>
+
+        <div class="globe-tip" id="globeTip" hidden>
+          <strong id="globeTipName"></strong>
+          <span id="globeTipMeta"></span>
+        </div>
+      </div>
+
+      <div class="globe-bottom">
+        <div class="globe-controls">
+          <p class="globe-hint">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11.2V5.6a1.6 1.6 0 013.2 0v4.6m0-1.4a1.6 1.6 0 013.2 0v1.9m0-1a1.6 1.6 0 013.2 0v4.1c0 4-2.6 6.7-6.5 6.7-2 0-3.5-.7-4.7-2.1L4.8 15.7a1.7 1.7 0 012.4-2.4l1.8 1.7"/></svg>
+            Нажмите на материк или выберите его в списке
+          </p>
+
+          <button class="settings-link" id="settingsLink" type="button"
+                  aria-expanded="false" aria-controls="settingsPanel">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 8.6a3.4 3.4 0 100 6.8 3.4 3.4 0 000-6.8z"/>
+              <path d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06-2.1 2.1-.06-.06a1.7 1.7 0 00-1.88-.34 1.7 1.7 0 00-1.03 1.56V21h-3v-.7A1.7 1.7 0 0010.7 18.6a1.7 1.7 0 00-1.88.34l-.06.06-2.1-2.1.06-.06A1.7 1.7 0 007.06 15a1.7 1.7 0 00-1.56-1.03H5.3v-3h.7A1.7 1.7 0 007.06 9.9a1.7 1.7 0 00-.34-1.88l-.06-.06 2.1-2.1.06.06A1.7 1.7 0 0010.7 6.26 1.7 1.7 0 0011.73 4.7V4h3v.7a1.7 1.7 0 001.03 1.56 1.7 1.7 0 001.88-.34l.06-.06 2.1 2.1-.06.06A1.7 1.7 0 0019.4 9.9a1.7 1.7 0 001.56 1.03h.7v3h-.7A1.7 1.7 0 0019.4 15z"/>
+            </svg>
+            <span>Настройки викторины</span>
+          </button>
+        </div>
+
+        <nav class="legend" id="legend" aria-label="Материки">
+          <!-- Кнопки материков добавляет app.js -->
+        </nav>
+      </div>
+    </section>
+
+    <noscript>
+      <p class="noscript">Для атлас-викторины нужен JavaScript — включите его в настройках браузера.</p>
+    </noscript>
+  </main>
+
+  <section class="detail" id="detail" aria-label="Викторина по карте материка" hidden>
+    <div class="detail__glow" id="detailGlow" aria-hidden="true"></div>
+    <div class="detail__word" id="detailWord" aria-hidden="true"></div>
+
+    <header class="detailbar">
+      <button class="roundbtn" id="back" type="button" aria-label="Вернуться к глобусу" title="К глобусу (Esc)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+      </button>
+
+      <div class="crumbs">
+        <span>Земля</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+        <strong id="crumbContinent">Европа</strong>
+        <span class="crumbs__count" id="crumbCount">50 стран</span>
+      </div>
+
+      <div class="detailbar__tools">
+        <button class="toolbtn toolbtn--refresh" id="refresh" type="button" title="Вернуть все страны в викторину">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 10-2.6 6.3M20 4v7h-7"/></svg>
+          <span>Обновить</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="quiz">
+      <div class="answerbar" id="answerBar">
+        <div class="answerbar__flag" id="answerFlag" aria-hidden="true">?</div>
+
+        <div class="answerbar__main">
+          <span class="answerbar__label" id="answerLabel">Найдите подсвеченную страну на карте</span>
+          <div class="answerbar__line">
+            <strong class="answerbar__country" id="countryName"><span class="mask">••••••</span></strong>
+            <span class="answerbar__capital" id="capitalName"><span class="mask">••••••</span></span>
+          </div>
+          <div class="answerbar__hintline">
+            <span class="answerbar__where" id="answerWhere">Ответ появится после нажатия на страну</span>
+            <span class="answerbar__hover" id="hoverName" aria-live="polite"></span>
+          </div>
+        </div>
+
+        <div class="answerbar__side">
+          <span class="answerbar__counter" id="cardCounter">1 / 50</span>
+          <div class="next" id="next">
+            <div class="next__track"><i id="nextBar"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz__mapwrap">
+        <svg id="map" class="map" viewBox="0 0 1000 700" role="img" aria-label="Карта материка с подсвеченной страной">
+          <g id="mapLand" class="map__land"></g>
+          <g id="mapMarkers" class="map__markers"></g>
+          <g id="mapLabels" class="map__labels" aria-hidden="true"></g>
+        </svg>
+
+        <div class="map__badge" aria-hidden="true">
+          <span class="map__badge-dot"></span>
+          <span id="mapBadgeText">Подсвеченная страна — ваш вопрос</span>
+        </div>
+
+        <div class="map__zoom" role="group" aria-label="Масштаб карты">
+          <button class="map__zoom-btn" id="zoomOut" type="button" aria-label="Уменьшить карту" title="Уменьшить (−)">−</button>
+          <span class="map__zoom-readout">
+            <b id="zoomValue">100%</b>
+            <i id="zoomMode" aria-hidden="true"></i>
+          </span>
+          <button class="map__zoom-btn" id="zoomIn" type="button" aria-label="Увеличить карту" title="Увеличить (+)">+</button>
+          <button class="map__zoom-btn map__zoom-reset" id="zoomReset" type="button" aria-label="Вернуть полный вид карты" title="Полный вид (0)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H4v5M15 20h5v-5M4.8 14a7.5 7.5 0 004.4 5.1M19.2 10A7.5 7.5 0 0014.8 4.9"/></svg>
+          </button>
+        </div>
+
+        <p class="map__foot" id="mapFoot">Нажмите именно на подсвеченный контур или точку</p>
+      </div>
+    </div>
+
+    <p class="sr-only" id="live" aria-live="polite"></p>
+  </section>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="world.js"></script>
+  <script src="countries.js"></script>
+  <script src="maps.js"></script>
+  <script src="globe.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
