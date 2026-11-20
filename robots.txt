@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://astraKod.github.io/terra-quiz/sitemap.xml
