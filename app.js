@@ -169,6 +169,15 @@
 
   /* ─────────── Фон: звёзды ─────────── */
 
+  let starCtx = null;
+  let starW = 0;
+  let starH = 0;
+  let starStatic = null;
+  let meteors = [];
+  let meteorRaf = 0;
+  let nextMeteorAt = 0;
+  let lastFrameAt = 0;
+
   function drawStars() {
     const canvas = els.stars;
     if (!canvas) return;
@@ -181,7 +190,17 @@
     canvas.width = Math.round(w * dpr);
     canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, w, h);
+    starCtx = ctx;
+    starW = w;
+    starH = h;
+    meteors = [];
+
+    starStatic = document.createElement('canvas');
+    starStatic.width = canvas.width;
+    starStatic.height = canvas.height;
+    const bg = starStatic.getContext('2d');
+    bg.setTransform(dpr, 0, 0, dpr, 0, 0);
+    bg.clearRect(0, 0, w, h);
 
     const count = Math.round((w * h) / 5200);
     for (let i = 0; i < count; i++) {
@@ -189,34 +208,109 @@
       const y = Math.random() * h;
       const r = Math.random() < 0.92 ? Math.random() * 0.9 + 0.25 : Math.random() * 1.5 + 1;
       const a = Math.random() * 0.55 + 0.18;
-      ctx.beginPath();
-      ctx.fillStyle = 'rgba(214,232,255,' + a.toFixed(3) + ')';
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
+      bg.beginPath();
+      bg.fillStyle = 'rgba(214,232,255,' + a.toFixed(3) + ')';
+      bg.arc(x, y, r, 0, Math.PI * 2);
+      bg.fill();
 
       if (r > 1.15) {
-        const glow = ctx.createRadialGradient(x, y, 0, x, y, r * 7);
+        const glow = bg.createRadialGradient(x, y, 0, x, y, r * 7);
         glow.addColorStop(0, 'rgba(190,220,255,' + (a * 0.35).toFixed(3) + ')');
         glow.addColorStop(1, 'rgba(190,220,255,0)');
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(x, y, r * 7, 0, Math.PI * 2);
-        ctx.fill();
+        bg.fillStyle = glow;
+        bg.beginPath();
+        bg.arc(x, y, r * 7, 0, Math.PI * 2);
+        bg.fill();
       }
     }
 
     for (let i = 0; i < 5; i++) {
       const x = Math.random() * w;
       const y = Math.random() * h * 0.75;
-      ctx.strokeStyle = 'rgba(226,240,255,0.4)';
-      ctx.lineWidth = 0.7;
-      ctx.beginPath();
-      ctx.moveTo(x - 5, y);
-      ctx.lineTo(x + 5, y);
-      ctx.moveTo(x, y - 5);
-      ctx.lineTo(x, y + 5);
-      ctx.stroke();
+      bg.strokeStyle = 'rgba(226,240,255,0.4)';
+      bg.lineWidth = 0.7;
+      bg.beginPath();
+      bg.moveTo(x - 5, y);
+      bg.lineTo(x + 5, y);
+      bg.moveTo(x, y - 5);
+      bg.lineTo(x, y + 5);
+      bg.stroke();
     }
+
+    if (!meteorRaf) meteorRaf = requestAnimationFrame(animateStars);
+  }
+
+  function spawnMeteor(now) {
+    const speed = 260 + Math.random() * 240;
+    const angle = Math.PI / 5 + Math.random() * (Math.PI / 8);
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    meteors.push({
+      x: Math.random() * starW,
+      y: Math.random() * starH * 0.55,
+      vx: Math.cos(angle) * speed * dir,
+      vy: Math.sin(angle) * speed,
+      ux: Math.cos(angle) * dir,
+      uy: Math.sin(angle),
+      age: 0,
+      life: 0.75 + Math.random() * 0.55,
+      len: 36 + Math.random() * 50,
+    });
+    nextMeteorAt = now + 2400 + Math.random() * 3200;
+  }
+
+  function animateStars(now) {
+    meteorRaf = requestAnimationFrame(animateStars);
+    if (!starCtx || !starStatic) return;
+
+    const dt = lastFrameAt ? Math.min((now - lastFrameAt) / 1000, 0.05) : 0;
+    lastFrameAt = now;
+
+    starCtx.setTransform(1, 0, 0, 1, 0, 0);
+    starCtx.clearRect(0, 0, starStatic.width, starStatic.height);
+    starCtx.drawImage(starStatic, 0, 0);
+
+    const dpr = starStatic.width / (starW || 1);
+    starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    if (!nextMeteorAt || now >= nextMeteorAt) {
+      if (meteors.length < 2) spawnMeteor(now);
+      else nextMeteorAt = now + 1200;
+    }
+
+    meteors = meteors.filter(function (m) {
+      m.x += m.vx * dt;
+      m.y += m.vy * dt;
+      m.age += dt;
+      return m.age < m.life && m.y < starH + 80 &&
+        m.x > -120 && m.x < starW + 120;
+    });
+
+    meteors.forEach(function (m) {
+      const p = m.age / m.life;
+      const alpha = Math.sin(Math.PI * p) * 0.85;
+      const tail = m.len * (0.55 + 0.45 * p);
+      const tx = m.x - m.ux * tail;
+      const ty = m.y - m.uy * tail;
+
+      const trail = starCtx.createLinearGradient(tx, ty, m.x, m.y);
+      trail.addColorStop(0, 'rgba(170,210,255,0)');
+      trail.addColorStop(1, 'rgba(235,245,255,' + alpha.toFixed(3) + ')');
+      starCtx.strokeStyle = trail;
+      starCtx.lineWidth = 1.3;
+      starCtx.beginPath();
+      starCtx.moveTo(tx, ty);
+      starCtx.lineTo(m.x, m.y);
+      starCtx.stroke();
+
+      const glow = starCtx.createRadialGradient(m.x, m.y, 0, m.x, m.y, 6);
+      glow.addColorStop(0, 'rgba(255,255,255,' + alpha.toFixed(3) + ')');
+      glow.addColorStop(0.35, 'rgba(200,225,255,' + (alpha * 0.5).toFixed(3) + ')');
+      glow.addColorStop(1, 'rgba(190,220,255,0)');
+      starCtx.fillStyle = glow;
+      starCtx.beginPath();
+      starCtx.arc(m.x, m.y, 6, 0, Math.PI * 2);
+      starCtx.fill();
+    });
   }
 
   /* ─────────── Легенда ─────────── */
@@ -1339,6 +1433,7 @@
   });
 
   window.addEventListener('beforeunload', function () {
+    if (meteorRaf) cancelAnimationFrame(meteorRaf);
     if (globe) globe.destroy();
   });
 
