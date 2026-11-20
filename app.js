@@ -1123,9 +1123,15 @@
     }
     els.answerBar.classList.add('is-counting');
 
-    const full = { x: state.base.x, y: state.base.y, w: state.base.w, h: state.base.h };
-    if (state.settings.smoothZoomOut) animateView(full, 'reveal', 720);
-    else applyView(full, 'reveal');
+    if (state.settings.autoZoom) {
+      const full = { x: state.base.x, y: state.base.y, w: state.base.w, h: state.base.h };
+      if (state.settings.smoothZoomOut) animateView(full, 'reveal', 720);
+      else applyView(full, 'reveal');
+    } else {
+      /* При ручном масштабе не сбрасываем увеличение после ответа */
+      cancelViewAnim();
+      updateZoomUI();
+    }
 
     els.live.textContent = country.name + '. Столица — ' + country.capital + '.';
 
